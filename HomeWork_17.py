@@ -134,19 +134,75 @@ class Fraction:
         self.den = den
 
     def __str__(self):
-        return f'Fraction({self.num}, {self.den})'
+        return f'str Fraction({self.num}, {self.den})'
 
     def __add__(self, other):
-
         total_den = self.den * other.den
         new_num = other.den * self.num + other.num * self.den
         new_den = total_den
-        temp_list = []
-        for i in range(2, min(new_num, new_den)):
+        temp_list = [1]
+        for i in range(2, min(new_num, new_den) + 1):
             if new_num % i == 0 and new_den % i == 0:
                 temp_list.append(i)
         nok = max(temp_list)
         return Fraction(new_num//nok, new_den//nok)
+
+    def __sub__(self, other):
+        total_den = self.den * other.den
+        new_num = other.den * self.num - other.num * self.den
+        new_den = total_den
+        temp_list = [1]
+        for i in range(2, min(new_num, new_den) + 1):
+            if new_num % i == 0 and new_den % i == 0:
+                temp_list.append(i)
+        nok = max(temp_list)
+        return Fraction(new_num // nok, new_den // nok)
+
+    def __mul__(self, other):
+        new_num = self.num * other.num
+        new_den = self.den * other.den
+        temp_list = [1]
+        for i in range(2, min(new_num, new_den) + 1):
+            if new_num % i == 0 and new_den % i == 0:
+                temp_list.append(i)
+        nok = max(temp_list)
+        return Fraction(new_num // nok, new_den // nok)
+
+    def __truediv__(self, other):
+        new_num = self.num * other.den
+        new_den = self.den * other.num
+        temp_list = [1]
+        for i in range(2, min(new_num, new_den) + 1):
+            if new_num % i == 0 and new_den % i == 0:
+                temp_list.append(i)
+        nok = max(temp_list)
+        return Fraction(new_num // nok, new_den // nok)
+
+    # Чому не працює з __div__
+
+    def __eq__(self, other):
+        if other.den * self.num == other.num * self.den:
+            return True
+        else:
+            return False
+
+    def __ne__(self, other):
+        if other.den * self.num != other.num * self.den:
+            return True
+        else:
+            return False
+
+    def __lt__(self, other):
+        if other.den * self.num < other.num * self.den:
+            return True
+        else:
+            return False
+
+    def __gt__(self, other):
+        if other.den * self.num > other.num * self.den:
+            return True
+        else:
+            return False
 
 
 def main():
@@ -176,8 +232,8 @@ def main():
     # Task 3
     x = Fraction(1, 2)
     y = Fraction(1, 4)
-    print(x + y)
-    print(Fraction(3, 4))
+    print(x - y)
+    print(Fraction(3, 4) < y)
 
 
 if __name__ == '__main__':
