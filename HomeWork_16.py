@@ -130,7 +130,7 @@ class Store:
 
 
 # Task 4
-class CustomException(BaseException):
+class CustomException(Exception):
     def __init__(self, msg):
         super().__init__(msg)
         with open('logs.txt', 'a') as f:
@@ -139,10 +139,10 @@ class CustomException(BaseException):
 
 def main():
     # Task 1
-    # print(dir(stud1)[-6:])
-    # print(teach1.salary)
-    # print(dir(teach1)[-6:])
-    #
+    print(dir(stud1)[-6:])
+    print(teach1.salary)
+    print(dir(teach1)[-6:])
+
     # # Task 2
     # print(m.square_nums([7, 11, 5, 4]) == [49, 121, 25, 16],
     #       m.remove_positives([26, -11, -8, 13, -90]) == [-11, -8, -90],
@@ -157,7 +157,7 @@ def main():
     # print(my_store.get_product_info('Ramen') == ('Ramen', 290))
 
     # Task 4
-    raise CustomException("Some massage")
+    # raise CustomException("Some massage")
 
 
 if __name__ == '__main__':

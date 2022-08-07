@@ -17,7 +17,8 @@ class TestEnumerate(unt.TestCase):
             self.assertEqual(my_val, right_val)
 
     def test_enum_type(self):
-        self.assertRaises(TypeError, hw.with_index(1))
+        with self.assertRaises(TypeError):
+            _ = next(hw.with_index(1))
 
 
 class TestPhonBook(unt.TestCase):

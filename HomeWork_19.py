@@ -44,7 +44,7 @@ class MyIterable:
 
 def main():
     # Task 1
-    # print(with_index('asd'))
+    print(next(with_index('asd')))
     ###########################################
     # Task 2
     # print(list(in_range(0, 10)))

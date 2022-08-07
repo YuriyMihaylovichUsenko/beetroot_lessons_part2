@@ -30,7 +30,7 @@ class Boss:
         return self.workers
 
     @get_workers.setter
-    def add_workers(self, val):
+    def get_workers(self, val):
         if isinstance(val, Worker):
             self.workers.append(val)
         else:
