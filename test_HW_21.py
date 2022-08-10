@@ -25,7 +25,7 @@ class TestHw21(unittest.TestCase):
     def test_error_under_with(self):
         with patch('HomeWork_21.MyOpen.loger'):
             with HomeWork_21.MyOpen('sample.txt', 'r') as my_open:
-                my_open.writerer('some')
+                my_open.writererfdggdfgfgf('some')
 
     def test_error_in_with(self):
         with patch('HomeWork_21.MyOpen.loger'):

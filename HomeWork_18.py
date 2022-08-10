@@ -145,10 +145,10 @@ def main():
     # print(b1.workers)
 
     # Task 3
-    # assert do_nothing('25') == 25
-    # assert do_something('True') is True
-    # print(do_nothing('2g5'))
-    # print(do_something(''))
+    assert do_nothing('25') == 25
+    assert do_something('True') is True
+    print(do_nothing('2g5'))
+    print(do_something(''))
 
 
 if __name__ == '__main__':
