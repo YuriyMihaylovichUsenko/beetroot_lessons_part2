@@ -1,8 +1,9 @@
 import json
+import mypy
 
 
-def start_and_open(file_name):
-    opening_object_name = input(
+def start_and_open(file_name) -> dict[str, str] | None:
+    opening_object_name: str = input(
         'What do you want to open? Input '
         'filename(phone_book.json) (Press q for exit)')
 
@@ -10,46 +11,46 @@ def start_and_open(file_name):
         exit()
     elif opening_object_name == 'phone_book.json':
         with open(file_name, 'r') as f:
-            data = json.load(f)
+            data: dict[str, str] = json.load(f)
         return data
     else:
         raise FileNotFoundError('object is not found')
 
 
-def dump_and_exit(data):
+def dump_and_exit(data) -> None:
     with open('phone_book.json', 'w') as file:
         json.dump(data, file, indent=4)
     exit()
 
 
-def add_contacts(data):
-    input_surname = input('input surname (Press q for exit): ')
+def add_contacts(data) -> None:
+    input_surname: str = input('input surname (Press q for exit): ')
     if input_surname == 'q':
         dump_and_exit(data)
 
-    input_name = input('input name (Press q for exit): ')
+    input_name: str = input('input name (Press q for exit): ')
     if input_name == 'q':
         dump_and_exit(data)
 
-    input_town = input('input town (Press q for exit): ')
+    input_town: str = input('input town (Press q for exit): ')
     if input_town == 'q':
         dump_and_exit(data)
 
-    input_number = input('input number (Press q for exit): ')
+    input_number: str = input('input number (Press q for exit): ')
     if input_number == 'q':
         dump_and_exit(data)
 
-    entry = {'first_name': input_name,
-             'last_name': input_surname,
-             'town': input_town, 'number': input_number}
+    entry: dict[str, str] = {'first_name': input_name,
+                             'last_name': input_surname,
+                             'town': input_town, 'number': input_number}
 
     data.append(entry)
 
     print(f'{entry} is added to phone book')
 
 
-def search_by_first_name(data):
-    input_name = input('input name (Press q for exit): ')
+def search_by_first_name(data) -> str | None | list[dict[str, str]]:
+    input_name: str = input('input name (Press q for exit): ')
     if input_name == 'q':
         dump_and_exit(data)
     if input_name not in (i['first_name'] for i in data):
@@ -58,8 +59,8 @@ def search_by_first_name(data):
         return [i for i in data if i['first_name'] == input_name]
 
 
-def search_by_last_name(data):
-    input_surname = input('input surname (Press q for exit): ')
+def search_by_last_name(data) -> None:
+    input_surname: str = input('input surname (Press q for exit): ')
     if input_surname == 'q':
         dump_and_exit(data)
     if input_surname not in (i['last_name'] for i in data):
@@ -69,8 +70,8 @@ def search_by_last_name(data):
         print([i for i in data if i['last_name'] == input_surname])
 
 
-def search_by_town(data):
-    input_town = input('input town (Press q for exit): ')
+def search_by_town(data) -> None:
+    input_town: str = input('input town (Press q for exit): ')
     if input_town == 'q':
         dump_and_exit(data)
     if input_town not in (i['town'] for i in data):
@@ -79,8 +80,8 @@ def search_by_town(data):
         print([i for i in data if i['town'] == input_town])
 
 
-def search_by_number(data):
-    input_number = input('input number (Press q for exit): ')
+def search_by_number(data) -> None:
+    input_number: str = input('input number (Press q for exit): ')
     if input_number == 'q':
         dump_and_exit(data)
     elif input_number not in (i['number'] for i in data):
@@ -90,16 +91,16 @@ def search_by_number(data):
         print([i for i in data if i['number'] == input_number])
 
 
-def del_entry_by_number(data):
-    input_number = input('input number (Press q for exit): ')
+def del_entry_by_number(data) -> None:
+    input_number: str = input('input number (Press q for exit): ')
     if input_number == 'q':
         dump_and_exit(data)
     if input_number not in (i['number'] for i in data):
         print(f'there is not contacts with name {input_number} '
               f'in the phone book')
     else:
-        removing_entry = [i for i in data if i['number'] == input_number]
-        confirm_removing = input(f'This contacts will be removed '
+        removing_entry: list[dict[str, str]] = [i for i in data if i['number'] == input_number]
+        confirm_removing: str = input(f'This contacts will be removed '
                                  f'{removing_entry}. Ok?: (Press q for exit)')
         if confirm_removing == 'q':
             dump_and_exit(data)
@@ -109,8 +110,8 @@ def del_entry_by_number(data):
         print('The contact has removed')
 
 
-def edit_entry_by_number(data):
-    input_number = input('input number (Press q for exit): ')
+def edit_entry_by_number(data) -> None:
+    input_number: str = input('input number (Press q for exit): ')
     if input_number == 'q':
         dump_and_exit(data)
     if input_number not in (i['number'] for i in data):
@@ -118,14 +119,14 @@ def edit_entry_by_number(data):
               f'in the phone book')
     for i in data:
         if i['number'] == input_number:
-            editing_entry = i
+            editing_entry: str = i
             print(editing_entry)
-            key_for_editing = input('What do you wont to edit? '
+            key_for_editing: str = input('What do you wont to edit? '
                                     'surname/name/patronymic/town/number? '
                                     '(Press q for exit)')
             if key_for_editing == 'q':
                 dump_and_exit(data)
-            new_value_for_key_for_editing = input(
+            new_value_for_key_for_editing: str = input(
                 'Input new value for ' + key_for_editing + '(Press q for exit)')
             if new_value_for_key_for_editing == 'q':
                 dump_and_exit(data)
@@ -134,7 +135,7 @@ def edit_entry_by_number(data):
 
 
 def function_choice(data):
-    function_dict = {'1': add_contacts,
+    function_dict: dict[str, ...] = {'1': add_contacts,
                      '2': search_by_first_name,
                      '3': search_by_last_name,
                      '5': search_by_number,
@@ -144,7 +145,7 @@ def function_choice(data):
                      '9': dump_and_exit}
 
     while True:
-        function_choice_ = input('\nWhat do you want to do:\n'
+        function_choice_: str = input('\nWhat do you want to do:\n'
                                  'Add new entries - press 1\n'
                                  'Search by first name - press 2\n'
                                  'Search by last name - press 3\n'
@@ -163,7 +164,7 @@ def function_choice(data):
 
 
 def phone_book(book):
-    data = start_and_open(book)
+    data: dict[str, str] = start_and_open(book)
     function_choice(data)
 
 
