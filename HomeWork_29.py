@@ -1,3 +1,18 @@
+# Task 1
+def binar(list_, num):
+    if len(list_) == 1 and list_[0] != num:
+        return False
+    mid_ind = len(list_) // 2
+    mid = list_[mid_ind]
+    if num == mid:
+        return True
+    elif mid > num:
+        return binar(list_[:mid_ind], num)
+    else:
+        return binar(list_[mid_ind:], num)
+
+
+# AddTask
 from dataclasses import dataclass
 from typing import Any
 
@@ -83,23 +98,31 @@ class HashTable:
         return {pair for pair in self._pairs}
 
 
-table = HashTable(3)
 
-# print(len(table))
 
-table['Oleg'] = 'Senior Python developer'
-table['Yurii'] = 'Team lead'
-table['Tetiana'] = 'Data scientist'
+def main():
+    # print(binar([1, 9, 12, 34, 35], 35))
+    table = HashTable(3)
 
-print(table['Oleg'])
-print(table['Yurii'])
-print(table['Tetiana'])
+    # print(len(table))
 
-print('Lev' in table)
+    table['Oleg'] = 'Senior Python developer'
+    table['Yurii'] = 'Team lead'
+    table['Tetiana'] = 'Data scientist'
 
-print(table.get('Yurii'))
+    print(table['Oleg'])
+    print(table['Yurii'])
+    print(table['Tetiana'])
 
-for i in table:
-    print(i)
+    print('Lev' in table)
 
-print(table.pairs)
+    print(table.get('Yurii'))
+
+    for i in table:
+        print(i)
+
+    print(table.pairs)
+
+
+if __name__ == '__main__':
+    main()
