@@ -1,105 +1,52 @@
-from dataclasses import dataclass
-from typing import Any
+import math
 
 
-@dataclass(frozen=True)
-class Pair:
-    key: Any
-    value: Any
+def arg_min(T, S):
+    amin = -1
+    m = math.inf  # максимальное значение
+    for i, t in enumerate(T):
+        if t < m and i not in S:
+            m = t
+            amin = i
+
+    return amin
 
 
-BLANK = object()
+D = ((0, 3, 1, 3, math.inf, math.inf),
+     (3, 0, 4, math.inf, math.inf, math.inf),
+     (1, 4, 0, math.inf, 7, 5),
+     (3, math.inf, math.inf, 0, math.inf, 2),
+     (math.inf, math.inf, 7, math.inf, 0, 4),
+     (math.inf, math.inf, 5, 2, 4, 0))
 
+N = len(D)  # число вершин в графе
+T = [math.inf]*N   # последняя строка таблицы
 
-class HashTable:
+v = 0       # стартовая вершина (нумерация с нуля)
+S = {v}     # просмотренные вершины
+T[v] = 0    # нулевой вес для стартовой вершины
+M = [0]*N   # оптимальные связи между вершинами
 
-    def __init__(self, capacity):
-        self._pairs = capacity * [BLANK]
-        self.cache_ind = []
+while v != -1:          # цикл, пока не просмотрим все вершины
+    for j, dw in enumerate(D[v]):   # перебираем все связанные вершины с вершиной v
+        if j not in S:           # если вершина еще не просмотрена
+            w = T[v] + dw
+            if w < T[j]:
+                T[j] = w
+                M[j] = v        # связываем вершину j с вершиной v
 
-    def __len__(self):
-        return len(self._pairs)
+    v = arg_min(T, S)            # выбираем следующий узел с наименьшим весом
+    if v >= 0:                    # выбрана очередная вершина
+        S.add(v)                 # добавляем новую вершину в рассмотрение
+    print(M)
+# print(T, M, sep="\n")
 
-    def __setitem__(self, key, value):
-        ind = self._index(key)
-        if self._pairs[ind] is None:
-            self._pairs[ind] = Pair(key, value)
-        else:
-            next_ind = self.new_index(ind)
-            while self._pairs[next_ind]:
-                next_ind = self.new_index(next_ind)
-            self._pairs[next_ind] = Pair(key, value)
+# формирование оптимального маршрута:
+start = 0
+end = 4
+P = [end]
+while end != start:
+    end = M[P[-1]]
+    P.append(end)
 
-    def __getitem__(self, key):
-        start_ind = self._index(key)
-        data = None
-        stop = False
-        found = False
-        position = start_ind
-        while self._pairs[position] is not None and not found and not stop:
-            if self._pairs[position].key == key:
-                found = True
-                data = self._pairs[position].value
-            else:
-                position = self.new_index(position)
-                if position == start_ind:
-                    stop = True
-        return data
-
-    def __contains__(self, key):
-        try:
-            self[key]
-        except KeyError:
-            return False
-        else:
-            return True
-
-    def get(self, key, default=None):
-        try:
-            return self[key]
-        except KeyError:
-            return default
-
-    def __delitem__(self, key):
-        if key in self:
-            self[key] = BLANK
-        else:
-            raise KeyError(key)
-
-    def __iter__(self):
-        yield from self._pairs
-
-    def _index(self, key):
-        res = hash(key) % len(self)
-        return res
-
-    def new_index(self, ind):
-        return (ind + 1) % len(self)
-
-
-
-    @property
-    def pairs(self):
-        return {pair for pair in self._pairs}
-
-
-table = HashTable(3)
-
-# print(len(table))
-
-table['Oleg'] = 'Senior Python developer'
-table['Yurii'] = 'Team lead'
-table['Tetiana'] = 'Data scientist'
-
-print(table['Oleg'])
-print(table['Yurii'])
-print(table['Tetiana'])
-
-print('Lev' in table)
-
-print(table.get('Yurii'))
-
-for i in table:
-    print(i)
-
-print(table.pairs)
+# print(P)
