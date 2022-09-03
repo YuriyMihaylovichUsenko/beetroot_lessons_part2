@@ -128,3 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea
+/Northwind_ERD.png
+/northwind.db
+/hr.db
