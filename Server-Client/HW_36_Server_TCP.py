@@ -1,21 +1,9 @@
-def encrypt(text, s):
-    result = ""
-    for i in range(len(text)):
-        char = text[i]
-        # Encrypt uppercase characters in plain text
-        if char.isupper():
-            result += chr((ord(char) + s - 65) % 26 + 65)
-        # Encrypt lowercase characters in plain text
-        else:
-            result += chr((ord(char) + s - 97) % 26 + 97)
-    return result
-
+import json
 import socket
 import threading
 
 PORT = 8001  # ПОРТ ЩО МИ ВІДКРИЄМО ДЛЯ РОБОТИ
 SERVER = socket.gethostbyname(socket.gethostname())
-# print(SERVER)
 
 ADDRESS = (SERVER, PORT)
 
@@ -29,37 +17,49 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDRESS)
 
 
+def encrypt(text, s):
+    result = ""
+    for i in range(len(text)):
+        char = text[i]
+        # Encrypt uppercase characters in plain text
+        if char.isupper():
+            result += chr((ord(char) + s - 65) % 26 + 65)
+        # Encrypt lowercase characters in plain text
+        else:
+            result += chr((ord(char) + s - 97) % 26 + 97)
+    return result
+
+
 def handle_client(connection, address):
     # ця функція буде використовуватися для обробки зв'язку з сервером клієнту
     print(f'NEW CONNECTION - {address}')
     connected = True
     while connected:
-        # recv кількість байтів що отримає клієнт
+        # recv(кількість байтів що отримає клієнт)
         # Але ми не можемо знати завчасно скільки отримаємо
-        # message = connection.recv(HEADER)
         # тому варто створити хедер
         # раз ми не знаємо розмір повідомлення, що буде відправлено на сервер
-        # то ми будемо спочатку відправляти такзваний хедер,
-        # в якому ми будемо вказувати розмір повідомлення, а потім
+        # то ми будемо спочатку відправляти розмір повідомлення.
+        # в recv будемо вказувати хедер, а потім
         # будемо відправляти саме повідомлення
-        # 11 "hello world"
         message_length = connection.recv(HEADER).decode(FORMAT)
-        # if message_length:  # later after client first try
-        message_length = int(message_length)
-        message = connection.recv(message_length).decode(FORMAT)
-        # key_length = connection.recv(HEADER).decode(FORMAT)
-        # key = int(connection.recv(key_length).decode(FORMAT))
+        if message_length:  # later after client first try
+            message_length = int(message_length)
+            message_json = connection.recv(message_length).decode(FORMAT)
+            message_dict = json.loads(message_json)
+            key = int(message_dict.get('key', 1))
+            message = message_dict.get('message', 'uppps')
 
-        # далі маємо потурбуватися щоб з'єднання було закрито
-        if message == DISCONNECT_MESSAGE:
-            connected = False
+            # далі маємо потурбуватися, щоб з'єднання було закрито
+            if message == DISCONNECT_MESSAGE:
+                connected = False
 
         print(f'[{address}] - {message}')
         print(key)
-        # У же після того як показав зв'язок з декількома клієнтами
-        # зробимо так, що сервер теж щось відповідав
-        connection.send(f'Message received from {address}'.encode(FORMAT))
-
+        # Тепер сервер відправляє закодоване повідомлення
+        connection.send(
+            f'Your encrypt message {encrypt(message, key)} '.encode(FORMAT)
+        )
     connection.close()
 
 
