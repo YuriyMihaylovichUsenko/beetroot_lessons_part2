@@ -30,10 +30,13 @@ def encrypt(text, s):
     return result
 
 
+all_connected = True
+
 def handle_client(connection, address):
     # ця функція буде використовуватися для обробки зв'язку з сервером клієнту
     print(f'NEW CONNECTION - {address}')
     connected = True
+    global all_connected
     while connected:
         # recv(кількість байтів що отримає клієнт)
         # Але ми не можемо знати завчасно скільки отримаємо
@@ -53,6 +56,9 @@ def handle_client(connection, address):
             # далі маємо потурбуватися, щоб з'єднання було закрито
             if message == DISCONNECT_MESSAGE:
                 connected = False
+            if message == 'end':
+                connected = False
+                all_connected = False
 
         print(f'[{address}] - {message}')
         print(key)
@@ -66,7 +72,7 @@ def handle_client(connection, address):
 def start():
     server.listen()
     print(f'SERVER LISTEN ON: {SERVER}')
-    while True:
+    while all_connected:
         # connettion - це об'єкт сокет
         connection, address = server.accept()
         # handle_client(connection, address)  # спочатку запустити
