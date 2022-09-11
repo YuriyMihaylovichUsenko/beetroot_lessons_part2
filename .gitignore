@@ -131,5 +131,7 @@ dmypy.json
 /Northwind_ERD.png
 /northwind.db
 /hr.db
-/Client.py
+/temp.py
 /Server.py
+/test.py
+/13.py
