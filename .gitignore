@@ -132,6 +132,7 @@ dmypy.json
 /northwind.db
 /hr.db
 /temp.py
-/Server.py
-/test.py
+/HW_38_Threads_Server_Client_Scraper/Scraper_peewee_threads.py
+/HW_38_Threads_Server_Client_Scraper/db_for_scraper_Rozetka.py
 /13.py
+/rozetka.db
