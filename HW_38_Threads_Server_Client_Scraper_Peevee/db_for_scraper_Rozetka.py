@@ -1,3 +1,5 @@
+import os
+
 from peewee import (
     Model,
     SqliteDatabase,
@@ -7,7 +9,7 @@ from peewee import (
 )
 
 
-db = SqliteDatabase('rozetka.db')
+db = SqliteDatabase("c:\pythonProject\\rozetka.db")
 
 
 class BaseModel(Model):

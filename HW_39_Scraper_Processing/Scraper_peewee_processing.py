@@ -1,4 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing
 from threading import Lock
 from queue import Queue
 
@@ -15,39 +16,26 @@ class RozetkaScraper:
     def __init__(self, domain_url: str, last_page: int):
         self._domain_url = domain_url
         self._last_page = last_page
+        print("init")
 
-    def scrape(self):
-        qu = self._fill_queue()
-        print('Started scrapping!!!')
-        with ThreadPoolExecutor(max_workers=20) as executor:
-            for i in range(self._last_page):
-                executor.submit(self._scrape, qu)
-
-    def _fill_queue(self):
-        qu = Queue()
+    def fill_list(self):
+        list_ = []
+        print('queue')
         for page in range(1, self._last_page + 1):
-            qu.put(self._domain_url.format(page=page))
+            list_.append((self._domain_url.format(page=page),))
 
-        return qu
+        return list_
 
-    def _scrape(self, qu: Queue):
-        while True:
-            url = qu.get()
-            print(qu.qsize(), url)
-            try:
-                response_string = self._get_response(url)
-                self._process(response_string)
-            except Exception as error:
-                print('Error', error)
-                qu.put(url)
+    def scrape(self, list_):
+        print('_scrape')
+        print(list_)
+        response_string = self._get_response(list_)
+        self._process(response_string)
 
-            if qu.empty():
-                break
-
-    def _get_response(self, url: str) -> str:
+    def _get_response(self, url) -> str:
         try:
             with Session() as session:
-                response = session.get(url, timeout=self.TIME)
+                response = session.get(url[0], timeout=self.TIME)
                 print(response.status_code, url)
                 assert response.status_code == 200, 'Bad response'
             return response.text
@@ -85,7 +73,8 @@ class RozetkaScraper:
         }
         sel_note['old_price'] = ''.join(
             [num for num in sel_note['old_price'][0].text.replace('\xa0', '').
-            strip() if num and num.isdigit()]) if sel_note['old_price'] else None
+            strip() if num and num.isdigit()]) if sel_note[
+            'old_price'] else None
 
         return sel_note
 
@@ -96,6 +85,7 @@ class RozetkaScraper:
             old_price=int(sel_note['old_price']) if sel_note[
                 'old_price'] else None
         )
+        print(type(price))
         return price
 
     @staticmethod
@@ -124,13 +114,15 @@ class RozetkaScraper:
                     Image.create(product=product, url=img)
 
 
-def main():
+if __name__ == '__main__':
     domain = 'https://rozetka.com.ua/ua/notebooks/c80004/page={page}/'
-    last_page = 16
+    last_page = 67
 
     scraper = RozetkaScraper(domain, last_page)
-    scraper.scrape()
 
+    list_ = scraper.fill_list()
 
-if __name__ == '__main__':
-    main()
+    print('Started scrapping!!!')
+
+    with multiprocessing.Pool(processes=8) as p:
+        p.map(scraper.scrape, list_)
