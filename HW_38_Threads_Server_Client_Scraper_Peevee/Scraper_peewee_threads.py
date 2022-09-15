@@ -96,7 +96,6 @@ class RozetkaScraper:
             old_price=int(sel_note['old_price']) if sel_note[
                 'old_price'] else None
         )
-        print(type(price))
         return price
 
     @staticmethod

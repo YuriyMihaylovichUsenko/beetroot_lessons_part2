@@ -39,3 +39,4 @@ class Image(BaseModel):
 
 if __name__ == '__main__':
     db.create_tables([Price, Product, Image])
+    # Product.delete().execute()

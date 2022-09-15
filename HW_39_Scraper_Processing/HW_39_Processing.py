@@ -1,3 +1,6 @@
+import concurrent
+import multiprocessing
+import os
 import threading
 import time
 import json
@@ -6,72 +9,42 @@ from concurrent.futures import ThreadPoolExecutor
 import pprint
 
 
-# Task 1
-# Make a class called Counter, and make it a subclass of the Thread class in
-# the Threading module. Make the class have two global variables, one called
-# counter set to 0, and another called rounds set to 100.000. Now implement
-# the run() method, let it include a simple for-loop that iterates through
-# rounds (e.i. 100.000 times) and for each time increments the value of the
-# counter by 1. Create 2 instances of the thread and start them, then join them
-# and check the result of the counter, it should be 200.000, right? Run it a
-# couple of times and consider some different reasons why you get the answer
-# that you get.
-
-
-counter = 0
-rounds = 100000
-
-
-class Counter(threading.Thread):
-
-    def run(self):
-        global counter
-        temp_counter = counter
-        for _ in range(rounds):
-            temp_counter += 1
-        time.sleep(0.1)
-        counter = temp_counter
-        return counter
-
-###############################################################################
 # Task 2
 # Requests using multiprocessing
 # Download all comments from a subreddit of your choice
 # using URL: https://api.pushshift.io/reddit/comment/search/ .
 # As a result, store all comments in chronological order in JSON and dump it
-# to a file. For this task use Threads for making requests to reddit API.
+# to a file. For this task use concurrent and multiprocessing for making
+# requests to reddit API.
 
 
 def create_list_subreddits(url):
     data = get(url).json()
     list_subreddits = []
     for i in data['data']:
-        list_subreddits.append(i['subreddit'])
+        list_subreddits.append((i['subreddit'], ))
+    # print(list_subreddits)
     return list_subreddits
 
 
-def create_subreddit_request(list_subreddits):
+def create_subreddit_request(subreddit):
     subreddit_request = {}
-    for subreddit in list_subreddits:
-        request = f'https://api.pushshift.io/reddit/comment/' \
-                  f'search?subreddit={subreddit}'
-        subreddit_request[subreddit] = request
+    request = f'https://api.pushshift.io/reddit/comment/' \
+              f'search?subreddit={subreddit[0]}'
+    subreddit_request[subreddit] = request
+    # print(subreddit_request)
     return subreddit_request
 
 
-subreddit_response = {}
-
-
-def collect(subreddit, request):
-    global subreddit_response
-    subreddit_response[subreddit] = get(request).json()
+def collect(subreddit_request):
+    subreddit_response = {}
+    for key, value in subreddit_request.items():
+        try:
+            subreddit_response[key[0]] = get(value).json()
+        except:
+            print(key, value)
+    # print(subreddit_response)
     return subreddit_response
-
-
-def run_threads(subreddit_request):
-    with ThreadPoolExecutor() as ex:
-        for key, value in subreddit_request.items():
-            ex.submit(collect, key, value)
 
 
 def create_result(subreddit_response):
@@ -79,39 +52,58 @@ def create_result(subreddit_response):
     for subreddit, response in subreddit_response.items():
         comment_by_author = {}
         for post in response['data']:
-            author = post['author']
-            comment = post['body']
+            author = post.get('author')
+            comment = post.get('body')
             if author in comment_by_author.keys():
                 comment_by_author[author].append(comment)
             else:
                 comment_by_author[author] = [comment]
         comments_by_subreddit[subreddit] = comment_by_author
+    # print(comments_by_subreddit)
+    return comments_by_subreddit
+
+# qu = multiprocessing.Queue()
+
+def process(subreddit):
+    # global qu
+    subreddit_request = create_subreddit_request(subreddit)
+    subreddit_response = collect(subreddit_request)
+    comments_by_subreddit = create_result(subreddit_response)
+    # qu.put(comments_by_subreddit)
+    # print(qu.qsize())
+    print('process executed', os.getpid(), comments_by_subreddit)
     return comments_by_subreddit
 
 
 def main():
-    # Task 1
-    # count_1 = Counter()
-    # count_2 = Counter()
-    #
-    # count_1.start()
-    # count_2.start()
-    #
-    # count_1.join()
-    # count_2.join()
-    #
-    # print(counter)
-#########################################################################
-    # Task 2
+
     url = 'https://api.pushshift.io/reddit/comment/search'
 
     list_subreddits = create_list_subreddits(url)
-    subreddit_request = create_subreddit_request(list_subreddits)
 
-    run_threads(subreddit_request)
+    with multiprocessing.Pool(3) as p:
+        pprint.pprint(p.map(process, list_subreddits))
 
-    result = create_result(subreddit_response)
-    pprint.pprint(result)
+
+    # p = multiprocessing.Pool(3)
+    # it = p.imap(process, list_subreddits)
+    # print(it.next())
+
+
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     print(executor.map(process, list_subreddits))
+
+
+
+    # processes = []
+    # for i in list_subreddits:
+    #     p = multiprocessing.Process(target=process, args=i)
+    #     processes.append(p)
+    #     p.start()
+
+
+    # for proces in processes:
+    #     proces.join()
 
 
 if __name__ == '__main__':
